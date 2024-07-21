@@ -1,33 +1,28 @@
-name: "Build"
+name: "Publish"
 
 on:
-    push:
-        branches: [ "dev" ]
-
-env:
-  CARGO_TERM_COLOR: always
-
-# This workflow will build your tauri app without uploading it anywhere.
-# This is useful to test if the build works on different platforms.
-# It will run on ubuntu, macos and windows runners.
-# It will build for x86_64 and aarch64 on macos runners.
+  push:
+      branches: [ "main" ]
 
 jobs:
-  build:
-    name: Build desktop app
+  publish:
+    name: Publish desktop app
+
+    permissions:
+      contents: write
 
     strategy:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
-            args: '-t aarch64-apple-darwin'
-          - platform: 'macos-latest'
-            args: '-t x86_64-apple-darwin'
-          - platform: 'ubuntu-22.04'
-            args: ''
-          - platform: 'windows-latest'
-            args: ''
+          - platform: "macos-latest"
+            args: "-t aarch64-apple-darwin"
+          - platform: "macos-latest"
+            args: "-tt x86_64-apple-darwin"
+          - platform: "ubuntu-22.04"
+            args: ""
+          - platform: "windows-latest"
+            args: ""
 
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 30
@@ -67,5 +62,13 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Build
-        run: pnpm tauri build --no-bundle -v ${{ matrix.args }}
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: books-v__VERSION__
+          releaseName: "Books v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
