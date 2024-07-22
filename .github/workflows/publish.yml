@@ -66,6 +66,9 @@ jobs:
         run: |
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> ./src-tauri/.env
 
+      - name: Debug - Show .env content
+        run: cat ./src-tauri/.env
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
