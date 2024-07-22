@@ -52,7 +52,7 @@ jobs:
 
       - name: Install macOS targets
         if: runner.os == 'macOS'
-        run : rustup target add aarch64-apple-darwin x86_64-apple-darwin
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
       - name: Cache Cargo dependencies
         uses: Swatinem/rust-cache@v2
@@ -63,9 +63,7 @@ jobs:
         run: pnpm install
 
       - name: Set environment variables
-        run: |
-          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> ./src-tauri/.env
-          cat ./src-tauri/.env
+        run: echo "SENTRY_DSN=\"${{ secrets.SENTRY_DSN }}\"" >> ./src-tauri/.env
 
       - uses: tauri-apps/tauri-action@v0
         env:
@@ -75,5 +73,5 @@ jobs:
           releaseName: "Books v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
-          tauriScript: "pnpm"
+          tauriScript: "pnpm tauri"
           args: ${{ matrix.args }}

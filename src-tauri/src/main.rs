@@ -14,13 +14,8 @@ fn panic() -> String {
 
 fn main() {
     
-    dotenv::dotenv().ok();
-    static SENTRY_DSN: &str = "SENTRY_DSN";
-
-    let dsn = std::env::var(SENTRY_DSN).unwrap_or_else(|_| String::default());
-
     let client = tauri_plugin_sentry::sentry::init((
-        dsn.clone(),
+        dotenvy_macro::dotenv!("SENTRY_DSN"),
         tauri_plugin_sentry::sentry::ClientOptions {
             debug: true,
             release: tauri_plugin_sentry::sentry::release_name!(),
