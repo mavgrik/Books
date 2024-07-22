@@ -64,9 +64,8 @@ jobs:
 
       - name: Set environment variables
         run: |
-          pwd
-          touch ./src-tauri/.env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> ./src-tauri/.env
+          cat ./src-tauri/.env
 
       - uses: tauri-apps/tauri-action@v0
         env:
@@ -76,5 +75,5 @@ jobs:
           releaseName: "Books v__VERSION__"
           releaseBody: "See the assets to download this version and install."
           releaseDraft: true
-          prerelease: false
+          tauriScript: "pnpm"
           args: ${{ matrix.args }}
