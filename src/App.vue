@@ -23,6 +23,7 @@ import Greet from "./components/Greet.vue";
     <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
 
     <Greet />
+    <TestSentry />
   </div>
 </template>
 
