@@ -64,10 +64,8 @@ jobs:
 
       - name: Set environment variables
         run: |
+          touch ./src-tauri/.env
           echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> ./src-tauri/.env
-
-      - name: Debug - Show .env content
-        run: cat ./src-tauri/.env
 
       - uses: tauri-apps/tauri-action@v0
         env:

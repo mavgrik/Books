@@ -16,6 +16,9 @@ fn main() {
     dotenv::dotenv().ok();
     
     static SENTRY_DSN: &str = "SENTRY_DSN";
+
+    println!("DSN: {}", SENTRY_DSN);
+
     let dsn = std::env::var(SENTRY_DSN).unwrap_or_else(|_| String::default());
 
     let client = tauri_plugin_sentry::sentry::init((
