@@ -67,5 +67,9 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      - name: Set environment variables
+        run: |
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> ./src-tauri/.env
+
       - name: Build
         run: pnpm tauri build --no-bundle -v ${{ matrix.args }}
