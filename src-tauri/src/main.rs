@@ -9,7 +9,9 @@ fn greet(name: &str) -> String {
 
 fn main() {
     dotenv::dotenv().ok();
-    let dsn = std::env::var("SENTRY_DSN").unwrap_or_else(|_| String::new());
+    
+    static SENTRY_DSN: &str = "SENTRY_DSN";
+    let dsn = std::env::var(SENTRY_DSN).unwrap_or_else(|_| String::default());
 
     let client = tauri_plugin_sentry::sentry::init((
         dsn.clone(),
