@@ -62,8 +62,13 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Set environment variables
+      - name: Set environment variables (unix)
+        if: runner.os != 'Windows'
         run: echo "SENTRY_DSN=\"${{ secrets.SENTRY_DSN }}\"" >> ./src-tauri/.env
+
+      - name: Set environment variables (windows)
+        if: runner.os == 'Windows'
+        run: echo "SENTRY_DSN=`"${{ secrets.SENTRY_DSN }}`"" | Out-File -Append ./src-tauri/.env
 
       - uses: tauri-apps/tauri-action@v0
         env:
