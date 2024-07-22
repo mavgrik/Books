@@ -1,6 +1,6 @@
 {
   "productName": "books",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "identifier": "net.mavgrik.books",
   "build": {
     "beforeDevCommand": "pnpm dev",

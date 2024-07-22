@@ -6,7 +6,9 @@
 	],
 	"settings": {
 		"cSpell.words": [
-			"mavgrik"
+			"mavgrik",
+			"minidump",
+			"serde"
 		]
 	},
 }
