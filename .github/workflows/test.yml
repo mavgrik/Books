@@ -5,8 +5,8 @@ on:
         branches: [ "dev" ]
 
 jobs:
-  build_x64:
-    name: Build x64 desktop app
+  build:
+    name: Build desktop app
 
     strategy:
       fail-fast: false
