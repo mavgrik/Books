@@ -6,7 +6,19 @@
 	],
 	"settings": {
 		"cSpell.words": [
-			"mavgrik"
+			"appimage",
+			"Bootstrapper",
+			"dotenv",
+			"dotenvs",
+			"dotenvy",
+			"fullscreen",
+			"icns",
+			"mavgrik",
+			"minidump",
+			"msrv",
+			"nsis",
+			"serde",
+			"Snyk"
 		]
 	},
 }

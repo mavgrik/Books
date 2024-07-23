@@ -1,16 +1,8 @@
-name: "Build"
+name: "Test build"
 
 on:
     push:
         branches: [ "dev" ]
-
-env:
-  CARGO_TERM_COLOR: always
-
-# This workflow will build your tauri app without uploading it anywhere.
-# This is useful to test if the build works on different platforms.
-# It will run on ubuntu, macos and windows runners.
-# It will build for x86_64 and aarch64 on macos runners.
 
 jobs:
   build:
@@ -21,9 +13,7 @@ jobs:
       matrix:
         include:
           - platform: 'macos-latest'
-            args: '-t aarch64-apple-darwin'
-          - platform: 'macos-latest'
-            args: '-t x86_64-apple-darwin'
+            args: '-t universal-apple-darwin'
           - platform: 'ubuntu-22.04'
             args: ''
           - platform: 'windows-latest'
@@ -66,6 +56,16 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+
+      - name: Set environment variables (unix)
+        if: runner.os != 'Windows'
+        run: echo "SENTRY_DSN=\"${{ secrets.SENTRY_DSN }}\"" >> ./src-tauri/.env
+
+      - name: Set environment variables (windows)
+        if: runner.os == 'Windows'
+        run: |
+          echo "SENTRY_DSN=`"${{ secrets.SENTRY_DSN }}`"" | Out-File -Append ./src-tauri/.env
+          $env:TAURI_FIPS_COMPLIANT="true"
 
       - name: Build
         run: pnpm tauri build --no-bundle -v ${{ matrix.args }}
