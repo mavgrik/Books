@@ -1,4 +1,4 @@
-name: "Build"
+name: "Test build"
 
 on:
     push:
@@ -10,8 +10,8 @@ on:
 # It will build for x86_64 and aarch64 on macos runners.
 
 jobs:
-  build:
-    name: Build desktop app
+  build_x64:
+    name: Build x64 desktop app
 
     strategy:
       fail-fast: false

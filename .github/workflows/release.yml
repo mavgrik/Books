@@ -1,12 +1,12 @@
-name: "Publish"
+name: "Release build"
 
 on:
   push:
       branches: [ "main" ]
 
 jobs:
-  publish:
-    name: Publish desktop app
+  release:
+    name: Release desktop app
 
     permissions:
       contents: write
