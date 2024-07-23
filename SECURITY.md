@@ -15,7 +15,7 @@ If you have found a security issue, please open a [GitHub issue](https://github.
 
 ## Additional Information
 
-The repository is scanned for vulnerabilities using DeepSource and Snyk. If you have any questions or concerns let me know.
+The repository is scanned for vulnerabilities using DeepSource. If you have any questions or concerns let me know.
 Dependabot is also enabled to keep dependencies checked and up-to-date.
 
 ## Error Reporting
