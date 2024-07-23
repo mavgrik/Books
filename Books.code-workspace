@@ -6,12 +6,16 @@
 	],
 	"settings": {
 		"cSpell.words": [
+			"appimage",
+			"Bootstrapper",
 			"dotenv",
 			"dotenvs",
 			"dotenvy",
+			"icns",
 			"mavgrik",
 			"minidump",
 			"msrv",
+			"nsis",
 			"serde"
 		]
 	},

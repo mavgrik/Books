@@ -22,7 +22,19 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["deb", "rpm", "appimage", "nsis", "msi", "dmg"],
+    "category": "Education",
+    "shortDescription": "another note taking app but with books",
+    "macOS": {
+      "minimumSystemVersion": "11"
+    },
+    "windows": {
+      "allowDowngrades": false,
+      "webviewInstallMode": {
+        "silent": true,
+        "type": "downloadBootstrapper"
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

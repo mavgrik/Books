@@ -12,7 +12,6 @@ fn main() {
     let client = tauri_plugin_sentry::sentry::init((
         dotenvy_macro::dotenv!("SENTRY_DSN"),
         tauri_plugin_sentry::sentry::ClientOptions {
-            debug: true,
             release: tauri_plugin_sentry::sentry::release_name!(),
             ..Default::default()
         },
