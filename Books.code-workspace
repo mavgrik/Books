@@ -17,7 +17,8 @@
 			"minidump",
 			"msrv",
 			"nsis",
-			"serde"
+			"serde",
+			"Snyk"
 		]
 	},
 }
