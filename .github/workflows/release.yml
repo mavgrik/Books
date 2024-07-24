@@ -2,7 +2,7 @@ name: "Release build"
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
 
 jobs:
   build_release:
@@ -57,7 +57,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          # cache: 'pnpm'
+          cache: 'pnpm'
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -66,10 +66,10 @@ jobs:
         if: runner.os == 'macOS'
         run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
-      # - name: Cache Cargo dependencies
-      #   uses: Swatinem/rust-cache@v2
-      #   with:
-      #     workspaces: './src-tauri -> target'
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
 
       - name: Install Dependencies
         run: pnpm install
@@ -152,7 +152,7 @@ jobs:
                 artifact: "Linux-x64"
                 content_type: "application/x-appimage"
                 path: "appimage/Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_arm64.dmg"
                 artifact: "macOS-arm"
                 content_type: "application/x-diskcopy"
                 path: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
