@@ -133,6 +133,9 @@ jobs:
 
     needs: [build_release, create_release]
 
+    permissions:
+      contents: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -164,11 +167,11 @@ jobs:
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.exe"
                 artifact: "Windows-x64"
                 content_type: "application/x-msdownload"
-                path: "msi/Books_${{ needs.build_release.outputs.appVersion }}_x64-setup.exe"
+                path: "nsis/Books_${{ needs.build_release.outputs.appVersion }}_x64-setup.exe"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
                 artifact: "Windows-x64"
                 content_type: "application/x-msdownload"
-                path: "nsis/Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+                path: "msi/Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
