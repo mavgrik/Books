@@ -101,7 +101,7 @@ jobs:
       contents: write
 
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ steps.create_release.outputs.result }}
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -111,13 +111,17 @@ jobs:
 
       - name: Create Release Draft
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@v7
         with:
-          tag_name: books-v${{ needs.build_release.outputs.appVersion }}
-          release_name: Books v${{ needs.build_release.outputs.appVersion }}
-          draft: true
+          script: |
+            const { data } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `books-v${{ needs.build_release.outputs.appVersion }}`,
+              name: `Books v${{ needs.build_release.outputs.appVersion }}`,
+              draft: true
+            })
+            core.setOutput('release_id', data.id)
   
   upload_release:
     name: Upload release
@@ -128,30 +132,30 @@ jobs:
       fail-fast: false
       matrix:
             include:
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.deb"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.deb"
                 content_type: "application/x-deb"
-                path: "/deb"
-              - name: "Books-${{ needs.build_release.outputs.appVersion }}-1.x86_64.rpm"
+                path: "./build/deb/Books_${{ needs.build_release.outputs.appVersion }}_amd64.deb"
+              - name: "Books-${{ needs.build_release.outputs.appVersion }}_x64.rpm"
                 content_type: "application/x-rpm"
-                path: "/rpm"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
+                path: "./build/rpm/Books-${{ needs.build_release.outputs.appVersion }}-1.x86_64.rpm"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
                 content_type: "application/x-appimage"
-                path: "/appimage"
+                path: "./build/appimage/Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
                 content_type: "application/x-diskcopy"
-                path: ""
+                path: "./build/Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
                 content_type: "application/x-diskcopy"
-                path: ""
+                path: "./build/Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
                 content_type: "application/x-diskcopy"
-                path: ""
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64-setup.exe"
+                path: "./build/Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.exe"
                 content_type: "application/x-msdownload"
-                path: "\\msi"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+                path: ".\\build\\msi\\Books_${{ needs.build_release.outputs.appVersion }}_x64-setup.exe"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
                 content_type: "application/x-msdownload"
-                path: "\\nsis"
+                path: ".\\build\\nsis\\Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -166,11 +170,22 @@ jobs:
           path: ./build
 
       - name: Upload Assets
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/github-script@v7
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./build${{ matrix.path }}
-          asset_name: ${{ matrix.name }}
-          asset_content_type: ${{ matrix.content_type }}
+          script: |
+            const fs = require('fs');
+            const path = '${{ matrix.path }}';
+            const stat = fs.statSync(path);
+            const file = fs.readFileSync(path);
+
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ needs.create_release.outputs.release_id }},
+              name: '${{ matrix.name }}',
+              data: file,
+              headers: {
+                'content-type': '${{ matrix.content_type }}',
+                'content-length': stat.size
+              }
+            })
