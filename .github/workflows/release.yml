@@ -2,14 +2,14 @@ name: "Release build"
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
 
 jobs:
-  release:
+  build_release:
     name: Release desktop app
 
-    permissions:
-      contents: write
+    outputs:
+      appVersion: ${{ steps.tauri_build.outputs.appVersion }}
 
     strategy:
       fail-fast: false
@@ -17,14 +17,24 @@ jobs:
         include:
           - platform: "macos-latest"
             args: "-t aarch64-apple-darwin"
+            path: "/Users/runner/work/Books/Books/src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/"
           - platform: "macos-latest"
             args: "-t x86_64-apple-darwin"
-          - platform: 'macos-latest'
-            args: '-t universal-apple-darwin'
+            path: "/Users/runner/work/Books/Books/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/"
+          - platform: "macos-latest"
+            args: "-t universal-apple-darwin"
+            path: "/Users/runner/work/Books/Books/src-tauri/target/universal-apple-darwin/release/bundle/dmg/"
           - platform: "ubuntu-22.04"
             args: ""
+            path: |
+              "/home/runner/work/Books/Books/src-tauri/target/release/bundle/deb/"
+              "/home/runner/work/Books/Books/src-tauri/target/release/bundle/rpm/"
+              "/home/runner/work/Books/Books/src-tauri/target/release/bundle/appimage/"
           - platform: "windows-latest"
             args: ""
+            path: |
+              "D:\a\Books\Books\src-tauri\target\release\bundle\msi\"
+              "D:\a\Books\Books\src-tauri\target\release\bundle\nsis\"
 
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 30
@@ -47,7 +57,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'pnpm'
+          # cache: 'pnpm'
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -56,10 +66,10 @@ jobs:
         if: runner.os == 'macOS'
         run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
+      # - name: Cache Cargo dependencies
+      #   uses: Swatinem/rust-cache@v2
+      #   with:
+      #     workspaces: './src-tauri -> target'
 
       - name: Install Dependencies
         run: pnpm install
@@ -75,11 +85,85 @@ jobs:
           $env:TAURI_FIPS_COMPLIANT="true"
 
       - uses: tauri-apps/tauri-action@v0
+        id: tauri_build
+        with:
+          tauriScript: "pnpm tauri"
+          args: ${{ matrix.args }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_artifacts
+          path: ${{ matrix.path }}
+
+  create_release:
+    name: Create release
+
+    needs: [build_release]
+
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Release Draft
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: books-v__VERSION__
-          releaseName: "Books v__VERSION__"
-          releaseDraft: true
-          tauriScript: "pnpm tauri"
-          args: ${{ matrix.args }}
+          tag_name: books-v${{ needs.build_release.outputs.appVersion }}
+          release_name: Books v${{ needs.build_release.outputs.appVersion }}
+          draft: true
+  
+  upload_release:
+    name: Upload release
+
+    needs: [build_release, create_release]
+
+    strategy:
+      fail-fast: false
+      matrix:
+            include:
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.deb"
+                content_type: "application/x-deb"
+              - name: "Books-${{ needs.build_release.outputs.appVersion }}-1.x86_64.rpm"
+                content_type: "application/x-rpm"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
+                content_type: "application/x-appimage"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
+                content_type: "application/x-diskcopy"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
+                content_type: "application/x-diskcopy"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
+                content_type: "application/x-diskcopy"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64-setup.exe"
+                content_type: "application/x-msdownload"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+                content_type: "application/x-msdownload"
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build_artifacts
+          path: ./build
+
+      - name: Upload Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create_release.outputs.upload_url }}
+          asset_path: ./build
+          asset_name: ${{ matrix.name }}
+          asset_content_type: ${{ matrix.content_type }}
