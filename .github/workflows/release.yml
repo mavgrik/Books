@@ -26,15 +26,10 @@ jobs:
             path: "/Users/runner/work/Books/Books/src-tauri/target/universal-apple-darwin/release/bundle/dmg/"
           - platform: "ubuntu-22.04"
             args: ""
-            path: |
-              "/home/runner/work/Books/Books/src-tauri/target/release/bundle/deb/"
-              "/home/runner/work/Books/Books/src-tauri/target/release/bundle/rpm/"
-              "/home/runner/work/Books/Books/src-tauri/target/release/bundle/appimage/"
+            path: "/home/runner/work/Books/Books/src-tauri/target/release/bundle/"
           - platform: "windows-latest"
             args: ""
-            path: |
-              "D:\a\Books\Books\src-tauri\target\release\bundle\msi\"
-              "D:\a\Books\Books\src-tauri\target\release\bundle\nsis\"
+            path: "D:\\a\\Books\\Books\\src-tauri\\target\\release\\bundle\\"
 
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 30
@@ -94,8 +89,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build_artifacts
-          path: | 
-            ${{ matrix.path }}
+          overwrite: true
+          path: ${{ matrix.path }}
 
   create_release:
     name: Create release
@@ -135,20 +130,28 @@ jobs:
             include:
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.deb"
                 content_type: "application/x-deb"
+                path: "/deb"
               - name: "Books-${{ needs.build_release.outputs.appVersion }}-1.x86_64.rpm"
                 content_type: "application/x-rpm"
+                path: "/rpm"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
                 content_type: "application/x-appimage"
+                path: "/appimage"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
                 content_type: "application/x-diskcopy"
+                path: ""
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
                 content_type: "application/x-diskcopy"
+                path: ""
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
                 content_type: "application/x-diskcopy"
+                path: ""
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64-setup.exe"
                 content_type: "application/x-msdownload"
+                path: "\\msi"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
                 content_type: "application/x-msdownload"
+                path: "\\nsis"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -168,6 +171,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./build
+          asset_path: ./build${{ matrix.path }}
           asset_name: ${{ matrix.name }}
           asset_content_type: ${{ matrix.content_type }}
