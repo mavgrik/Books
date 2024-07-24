@@ -121,7 +121,7 @@ jobs:
               name: `Books v${{ needs.build_release.outputs.appVersion }}`,
               draft: true
             })
-            core.setOutput('release_id', data.id)
+            return data.id
   
   upload_release:
     name: Upload release
