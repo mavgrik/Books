@@ -23,7 +23,7 @@
 			"Snyk"
 		],
 		"cSpell.ignorePaths": [
-			"package-lock.json",
+			"pnpm-lock.yaml",
 			"src-tauri/Cargo.lock",
 			"node_modules/",
 			".git/"
