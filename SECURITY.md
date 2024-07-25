@@ -4,10 +4,10 @@
 
 | Version   | Supported          |
 | --------- | ------------------ |
-| >= 0.1.0  | :white_check_mark: |
-| < 0.1.0   | :x:                |
+| >= 0.0.5  | :white_check_mark: |
+| < 0.0.5   | :x:                |
 
-All versions after 0.1.0 have the updater enabled, so it is recommended to use the latest version.
+All versions after 0.0.5 have the updater enabled, so it is recommended to use the latest version.
 
 ## Vulnerability Reporting
 
