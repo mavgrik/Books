@@ -9,26 +9,59 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "trayIcon": {
+      "iconPath": "icons/128x128.png",
+      "title": "Books",
+      "tooltip": "Books status"
+    },
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "Books",
-        "resizable": true,
-        "fullscreen": false,
         "width": 800,
-        "height": 600
+        "height": 600,
+        "acceptFirstMouse": true,
+        "center": true,
+        "hiddenTitle": true,
+        "zoomHotkeysEnabled": true
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; img-src https: data:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' wss:;"
     }
   },
   "bundle": {
     "active": true,
     "targets": ["deb", "rpm", "appimage", "nsis", "msi", "dmg"],
     "category": "Education",
+    "license": "GPL-3.0",
+    "licenseFile": "../LICENSE.md",
     "shortDescription": "another note taking app but with books",
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false
+      },
+      "rpm": {
+        "release": "0.0.4"
+      }
+    },
     "macOS": {
-      "minimumSystemVersion": "11"
+      "minimumSystemVersion": "11",
+      "exceptionDomain": "books.mavgrik.net",
+      "dmg": {
+        "appPosition": {
+          "x": 180,
+          "y": 170
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 170
+        },
+        "windowSize": {
+          "height": 400,
+          "width": 660
+        }
+      }
     },
     "windows": {
       "allowDowngrades": false,
