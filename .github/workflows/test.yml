@@ -52,7 +52,7 @@ jobs:
         run : rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
       - name: Install Windows targets
-                if: runner.os == 'Windows' && matrix.args == '-t aarch64-pc-windows-msvc'
+        if: runner.os == 'Windows' && matrix.args == '-t aarch64-pc-windows-msvc'
         run: rustup target add aarch64-pc-windows-msvc
 
       - name: Install MSVC v143 - VS 2022 C++ ARM64 build tools
