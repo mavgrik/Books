@@ -18,6 +18,8 @@ jobs:
             args: ''
           - platform: 'windows-latest'
             args: ''
+          - platform: 'windows-latest'
+            args: '-t aarch64-pc-windows-msvc'
 
     runs-on: ${{ matrix.platform }}
     timeout-minutes: 30
@@ -48,6 +50,17 @@ jobs:
       - name: Install macOS targets
         if: runner.os == 'macOS'
         run : rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - name: Install Windows targets
+                if: runner.os == 'Windows' && matrix.args == '-t aarch64-pc-windows-msvc'
+        run: rustup target add aarch64-pc-windows-msvc
+
+      - name: Install MSVC v143 - VS 2022 C++ ARM64 build tools
+        if: runner.os == 'Windows' && matrix.args == '-t aarch64-pc-windows-msvc'
+        run: |
+          choco install vswhere
+          $vsPath = vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          & "$vsPath\vs_installer.exe" modify --installPath $vsPath --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --quiet --wait
 
       - name: Cache Cargo dependencies
         uses: Swatinem/rust-cache@v2
