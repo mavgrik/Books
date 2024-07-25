@@ -55,12 +55,13 @@ jobs:
         if: runner.os == 'Windows' && matrix.args == '-t aarch64-pc-windows-msvc'
         run: rustup target add aarch64-pc-windows-msvc
 
-      - name: Install MSVC v143 - VS 2022 C++ ARM64 build tools
+      - name: Install C++ ARM64 build tools
         if: runner.os == 'Windows' && matrix.args == '-t aarch64-pc-windows-msvc'
         run: |
           choco install vswhere
           $vsPath = vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-          & "$vsPath\vs_installer.exe" modify --installPath $vsPath --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --quiet --wait
+          $installerPath = Join-Path $vsPath 'installer\vs_installer.exe'
+          Start-Process -FilePath $installerPath -ArgumentList "modify --installPath $vsPath --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --quiet --wait" -Wait
 
       - name: Cache Cargo dependencies
         uses: Swatinem/rust-cache@v2
