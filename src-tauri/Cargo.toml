@@ -1,6 +1,6 @@
 [package]
 name = "books"
-version = "0.0.3"
+version = "0.0.4"
 description = "another note taking app but with books"
 authors = ["mavgrik"]
 edition = "2021"
