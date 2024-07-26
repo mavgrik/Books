@@ -71,10 +71,13 @@
         "type": "downloadBootstrapper"
       },
       "nsis": {
-        "installerIcon": "icons/icon.ico"
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "icons/nsis_header.bmp",
+        "sidebarImage": "icons/nsis_sidebar.bmp"
       },
       "wix": {
-        
+        "dialogImagePath": "icons/wix_dialog.bmp",
+        "bannerPath": "icons/wix_banner.bmp"
       }
     },
     "icon": [
