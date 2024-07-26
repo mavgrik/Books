@@ -9,11 +9,6 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "trayIcon": {
-      "iconPath": "icons/128x128.png",
-      "title": "Books",
-      "tooltip": "Books"
-    },
     "withGlobalTauri": true,
     "windows": [
       {
