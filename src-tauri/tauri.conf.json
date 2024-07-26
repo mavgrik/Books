@@ -12,7 +12,7 @@
     "trayIcon": {
       "iconPath": "icons/128x128.png",
       "title": "Books",
-      "tooltip": "Books status"
+      "tooltip": "Books"
     },
     "withGlobalTauri": true,
     "windows": [
@@ -35,7 +35,7 @@
     "targets": ["deb", "rpm", "appimage", "nsis", "msi", "dmg"],
     "category": "Education",
     "license": "GPL-3.0",
-    "licenseFile": "../LICENSE.md",
+    "licenseFile": "../LICENSE",
     "shortDescription": "another note taking app but with books",
     "linux": {
       "appimage": {
@@ -51,15 +51,20 @@
       "dmg": {
         "appPosition": {
           "x": 180,
-          "y": 170
+          "y": 220
         },
         "applicationFolderPosition": {
           "x": 480,
-          "y": 170
+          "y": 220
         },
         "windowSize": {
           "height": 400,
           "width": 660
+        },
+        "background": "icons/dmg_background.png",
+        "windowPosition": {
+          "x": 480,
+          "y": 220
         }
       }
     },
@@ -68,6 +73,12 @@
       "webviewInstallMode": {
         "silent": true,
         "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installerIcon": "icons/icon.ico"
+      },
+      "wix": {
+        
       }
     },
     "icon": [
