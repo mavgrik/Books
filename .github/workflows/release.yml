@@ -2,7 +2,7 @@ name: "Release build"
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main" ]
 
 jobs:
   build_release:
@@ -66,10 +66,10 @@ jobs:
         if: runner.os == 'macOS'
         run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
-      # - name: Cache Cargo dependencies
-      #   uses: Swatinem/rust-cache@v2
-      #   with:
-      #     workspaces: './src-tauri -> target'
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
 
       - name: Install Dependencies
         run: pnpm install
@@ -97,107 +97,107 @@ jobs:
           overwrite: true
           path: ${{ matrix.path }}
 
-  # create_release:
-  #   name: Create release
+  create_release:
+    name: Create release
 
-  #   needs: [build_release]
+    needs: [build_release]
 
-  #   permissions:
-  #     contents: write
+    permissions:
+      contents: write
 
-  #   outputs:
-  #     release_id: ${{ steps.create_release.outputs.result }}
+    outputs:
+      release_id: ${{ steps.create_release.outputs.result }}
 
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Create Release Draft
-  #       id: create_release
-  #       uses: actions/github-script@v7
-  #       with:
-  #         script: |
-  #           const { data } = await github.rest.repos.createRelease({
-  #             owner: context.repo.owner,
-  #             repo: context.repo.repo,
-  #             tag_name: `books-v${{ needs.build_release.outputs.appVersion }}`,
-  #             name: `Books v${{ needs.build_release.outputs.appVersion }}`,
-  #             draft: true
-  #           })
-  #           return data.id
+      - name: Create Release Draft
+        id: create_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `books-v${{ needs.build_release.outputs.appVersion }}`,
+              name: `Books v${{ needs.build_release.outputs.appVersion }}`,
+              draft: true
+            })
+            return data.id
   
-  # upload_release:
-  #   name: Upload release
+  upload_release:
+    name: Upload release
 
-  #   needs: [build_release, create_release]
+    needs: [build_release, create_release]
 
-  #   permissions:
-  #     contents: write
+    permissions:
+      contents: write
 
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #           include:
-  #             - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.deb"
-  #               artifact: "Linux-x64"
-  #               content_type: "application/x-deb"
-  #               path: "deb/Books_${{ needs.build_release.outputs.appVersion }}_amd64.deb"
-  #             - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.rpm"
-  #               artifact: "Linux-x64"
-  #               content_type: "application/x-rpm"
-  #               path: "rpm/Books-${{ needs.build_release.outputs.appVersion }}-${{ needs.build_release.outputs.appVersion }}.x86_64.rpm"
-  #             - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
-  #               artifact: "Linux-x64"
-  #               content_type: "application/x-appimage"
-  #               path: "appimage/Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
-  #             - name: "Books_${{ needs.build_release.outputs.appVersion }}_arm64.dmg"
-  #               artifact: "macOS-arm"
-  #               content_type: "application/x-diskcopy"
-  #               path: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
-  #             - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
-  #               artifact: "macOS-x64"
-  #               content_type: "application/x-diskcopy"
-  #               path: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
-  #             - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-  #               artifact: "macOS-universal"
-  #               content_type: "application/x-diskcopy"
-  #               path: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-  #             - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
-  #               artifact: "Windows-x64"
-  #               content_type: "application/x-msdownload"
-  #               path: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+    strategy:
+      fail-fast: false
+      matrix:
+            include:
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.deb"
+                artifact: "Linux-x64"
+                content_type: "application/x-deb"
+                path: "deb/Books_${{ needs.build_release.outputs.appVersion }}_amd64.deb"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.rpm"
+                artifact: "Linux-x64"
+                content_type: "application/x-rpm"
+                path: "rpm/Books-${{ needs.build_release.outputs.appVersion }}-${{ needs.build_release.outputs.appVersion }}.x86_64.rpm"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
+                artifact: "Linux-x64"
+                content_type: "application/x-appimage"
+                path: "appimage/Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_arm64.dmg"
+                artifact: "macOS-arm"
+                content_type: "application/x-diskcopy"
+                path: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
+                artifact: "macOS-x64"
+                content_type: "application/x-diskcopy"
+                path: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
+                artifact: "macOS-universal"
+                content_type: "application/x-diskcopy"
+                path: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
+              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
+                artifact: "Windows-x64"
+                content_type: "application/x-msdownload"
+                path: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
 
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
-  #   steps:
-  #     - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Download build artifacts
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ matrix.artifact }}
-  #         path: ./build/${{ matrix.artifact }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ./build/${{ matrix.artifact }}
 
-  #     - name: Upload Assets
-  #       uses: actions/github-script@v7
-  #       with:
-  #         script: |
-  #           const fs = require('fs');
-  #           const path = './build/${{ matrix.artifact }}/${{ matrix.path }}';
-  #           const stat = fs.statSync(path);
-  #           const file = fs.readFileSync(path);
+      - name: Upload Assets
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = './build/${{ matrix.artifact }}/${{ matrix.path }}';
+            const stat = fs.statSync(path);
+            const file = fs.readFileSync(path);
 
-  #           await github.rest.repos.uploadReleaseAsset({
-  #             owner: context.repo.owner,
-  #             repo: context.repo.repo,
-  #             release_id: ${{ needs.create_release.outputs.release_id }},
-  #             name: '${{ matrix.name }}',
-  #             data: file,
-  #             headers: {
-  #               'content-type': '${{ matrix.content_type }}',
-  #               'content-length': stat.size
-  #             }
-  #           })
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ needs.create_release.outputs.release_id }},
+              name: '${{ matrix.name }}',
+              data: file,
+              headers: {
+                'content-type': '${{ matrix.content_type }}',
+                'content-length': stat.size
+              }
+            })
