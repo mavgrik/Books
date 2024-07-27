@@ -1,6 +1,6 @@
 [package]
 name = "books"
-version = "0.0.3"
+version = "0.0.4"
 description = "another note taking app but with books"
 authors = ["mavgrik"]
 edition = "2021"
@@ -16,7 +16,7 @@ strip = true # Remove debug symbols
 tauri-build = { version = "2.0.0-beta", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-beta", features = [] }
+tauri = { version = "2.0.0-beta", features = ["tray-icon"] }
 tauri-plugin-shell = "2.0.0-beta"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

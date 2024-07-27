@@ -1,6 +1,6 @@
 {
   "productName": "Books",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "identifier": "net.mavgrik.books",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -9,32 +9,70 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "title": "Books",
-        "resizable": true,
-        "fullscreen": false,
         "width": 800,
-        "height": 600
+        "height": 600,
+        "acceptFirstMouse": true,
+        "center": true,
+        "hiddenTitle": true,
+        "zoomHotkeysEnabled": true
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; img-src https: data:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' wss:;"
     }
   },
   "bundle": {
+    "copyright": "Books  Copyleft (C) 2024  mavgrik",    
     "active": true,
-    "targets": ["deb", "rpm", "appimage", "nsis", "msi", "dmg"],
+    "targets": ["deb", "rpm", "appimage", "msi", "dmg"],
     "category": "Education",
+    "license": "GPL-3.0",
+    "licenseFile": "../LICENSE",
     "shortDescription": "another note taking app but with books",
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false
+      },
+      "rpm": {
+        "release": "0.0.4"
+      }
+    },
     "macOS": {
-      "minimumSystemVersion": "11"
+      "minimumSystemVersion": "11",
+      "exceptionDomain": "books.mavgrik.net",
+      "dmg": {
+        "appPosition": {
+          "x": 180,
+          "y": 220
+        },
+        "applicationFolderPosition": {
+          "x": 480,
+          "y": 220
+        },
+        "windowSize": {
+          "height": 400,
+          "width": 660
+        },
+        "background": "icons/dmg_background.png",
+        "windowPosition": {
+          "x": 480,
+          "y": 220
+        }
+      }
     },
     "windows": {
       "allowDowngrades": false,
       "webviewInstallMode": {
         "silent": true,
         "type": "downloadBootstrapper"
+      },
+      "wix": {
+        "dialogImagePath": "icons/wix_dialog.bmp",
+        "bannerPath": "icons/wix_banner.bmp"
       }
     },
     "icon": [

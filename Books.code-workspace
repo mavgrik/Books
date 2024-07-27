@@ -12,6 +12,7 @@
 			"dotenv",
 			"dotenvs",
 			"dotenvy",
+			"enri",
 			"fullscreen",
 			"icns",
 			"mavgrik",
@@ -20,6 +21,12 @@
 			"nsis",
 			"serde",
 			"Snyk"
+		],
+		"cSpell.ignorePaths": [
+			"pnpm-lock.yaml",
+			"src-tauri/Cargo.lock",
+			"node_modules/",
+			".git/"
 		]
 	},
 }
