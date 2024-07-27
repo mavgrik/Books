@@ -28,7 +28,7 @@
   "bundle": {
     "copyright": "Books  Copyleft (C) 2024  mavgrik",    
     "active": true,
-    "targets": ["deb", "rpm", "appimage", "nsis", "msi", "dmg"],
+    "targets": ["deb", "rpm", "appimage", "msi", "dmg"],
     "category": "Education",
     "license": "GPL-3.0",
     "licenseFile": "../LICENSE",
@@ -69,11 +69,6 @@
       "webviewInstallMode": {
         "silent": true,
         "type": "downloadBootstrapper"
-      },
-      "nsis": {
-        "installerIcon": "icons/icon.ico",
-        "headerImage": "icons/nsis_header.bmp",
-        "sidebarImage": "icons/nsis_sidebar.bmp"
       },
       "wix": {
         "dialogImagePath": "icons/wix_dialog.bmp",
