@@ -8,7 +8,6 @@ fn greet(name: &str) -> String {
 }
 
 fn main() {
-    
     let client = tauri_plugin_sentry::sentry::init((
         dotenvy_macro::dotenv!("SENTRY_DSN"),
         tauri_plugin_sentry::sentry::ClientOptions {
@@ -19,6 +18,7 @@ fn main() {
     let _guard = tauri_plugin_sentry::minidump::init(&client);
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_sentry::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![greet])

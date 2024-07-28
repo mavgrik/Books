@@ -15,6 +15,7 @@
     "tray:default",
     "shell:allow-open",
     "sentry:default",
-    "webview:allow-set-webview-zoom"
+    "webview:allow-set-webview-zoom",
+    "updater:default"
   ]
 }
