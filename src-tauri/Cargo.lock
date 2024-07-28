@@ -168,7 +168,7 @@ dependencies = [
 
 [[package]]
 name = "books"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "dotenvy_macro",
  "serde",

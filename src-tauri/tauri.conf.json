@@ -1,6 +1,6 @@
 {
   "productName": "Books",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "identifier": "net.mavgrik.books",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -36,9 +36,6 @@
     "linux": {
       "appimage": {
         "bundleMediaFramework": false
-      },
-      "rpm": {
-        "release": "0.0.4"
       }
     },
     "macOS": {
