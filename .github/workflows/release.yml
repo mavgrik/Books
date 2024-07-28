@@ -234,7 +234,7 @@ jobs:
             const fs = require('fs');
             const version = process.env.APP_VERSION;
 
-            const signature_linux = fs.readFileSync(`./build/Linux/Books_${version}_x64.AppImage.sig`, 'utf8');
+            const signature_linux = fs.readFileSync(`./build/Linux/Books_${version}_amd64.AppImage.sig`, 'utf8');
             const signature_windows = fs.readFileSync(`./build/Windows/Books_${version}_x64_en-US.msi.sig`, 'utf8');
             const signature_macos = fs.readFileSync(`./build/macOS/macos/Books.app.tar.gz.sig`, 'utf8');
 
@@ -251,15 +251,15 @@ jobs:
                     "signature": signature_windows,
                     "url": "https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.msi"
                   },
+                  "darwin-universal": {
+                    "signature": signature_macos,
+                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
+                  },
                   "darwin-x86_64": {
                     "signature": signature_macos,
                     "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
                   },
                   "darwin-aarch64": {
-                    "signature": signature_macos,
-                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
-                  },
-                  "darwin-universal": {
                     "signature": signature_macos,
                     "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
                   }
