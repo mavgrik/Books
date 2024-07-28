@@ -4,6 +4,10 @@ on:
   push:
     branches: [ "main" ]
 
+concurrency:
+  group: "release"
+  cancel-in-progress: false
+
 jobs:
   build_release:
     name: Build release
@@ -16,15 +20,15 @@ jobs:
       matrix:
         include:
           - platform: "macos-latest"
-            artifact: "macOS-universal"
+            artifact: "macOS"
             args: "-t universal-apple-darwin"
             path: "/Users/runner/work/Books/Books/src-tauri/target/universal-apple-darwin/release/bundle/"
           - platform: "ubuntu-22.04"
-            artifact: "Linux-x64"
+            artifact: "Linux"
             args: ""
             path: "/home/runner/work/Books/Books/src-tauri/target/release/bundle/appimage/"
           - platform: "windows-latest"
-            artifact: "Windows-x64"
+            artifact: "Windows"
             args: ""
             path: "D:\\a\\Books\\Books\\src-tauri\\target\\release\\bundle\\msi\\"
 
@@ -139,15 +143,15 @@ jobs:
       matrix:
             include:
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
-                artifact: "Linux-x64"
+                artifact: "Linux"
                 content_type: "application/x-appimage"
                 path: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-                artifact: "macOS-universal"
+                artifact: "macOS"
                 content_type: "application/x-diskcopy"
                 path: "dmg/Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
               - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
-                artifact: "Windows-x64"
+                artifact: "Windows"
                 content_type: "application/x-msdownload"
                 path: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
 
@@ -183,3 +187,58 @@ jobs:
                 'content-length': stat.size
               }
             })
+
+  upload_update:
+    name: Upload update
+
+    needs: [build_release]
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+            include:
+              - artifact: "Linux"
+                paths: |
+                  "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
+                  "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage.sig"
+              - artifact: "macOS"
+                paths: |
+                  "macos/Books.app.tar.gz"
+                  "macos/Books.app.tar.gz.sig"
+              - artifact: "Windows"
+                paths: |
+                  "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+                  "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi.sig"
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ./build/${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './build/${{ matrix.artifact }}/${{ matrix.paths }}'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
