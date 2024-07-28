@@ -105,6 +105,7 @@ jobs:
       contents: write
 
     outputs:
+      appVersion: ${{ needs.build.outputs.appVersion }}
       release_id: ${{ steps.create_release.outputs.result }}
 
     runs-on: ubuntu-latest
@@ -130,7 +131,7 @@ jobs:
   upload_release:
     name: Upload release
 
-    needs: [create_release, build]
+    needs: [create_release]
 
     permissions:
       contents: write
@@ -139,18 +140,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "Books_${{ needs.build.outputs.appVersion }}_x64.AppImage"
+          - name: "Books_${{ needs.create_release.outputs.appVersion }}_x64.AppImage"
             artifact: "Linux"
             content_type: "application/x-appimage"
-            path: "Books_${{ needs.build.outputs.appVersion }}_amd64.AppImage"
-          - name: "Books_${{ needs.build.outputs.appVersion }}_universal.dmg"
+            path: "Books_${{ needs.create_release.outputs.appVersion }}_amd64.AppImage"
+          - name: "Books_${{ needs.create_release.outputs.appVersion }}_universal.dmg"
             artifact: "macOS"
             content_type: "application/x-diskcopy"
-            path: "dmg/Books_${{ needs.build.outputs.appVersion }}_universal.dmg"
-          - name: "Books_${{ needs.build.outputs.appVersion }}_x64.msi"
+            path: "dmg/Books_${{ needs.create_release.outputs.appVersion }}_universal.dmg"
+          - name: "Books_${{ needs.create_release.outputs.appVersion }}_x64.msi"
             artifact: "Windows"
             content_type: "application/x-msdownload"
-            path: "Books_${{ needs.build.outputs.appVersion }}_x64_en-US.msi"
+            path: "Books_${{ needs.create_release.outputs.appVersion }}_x64_en-US.msi"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
