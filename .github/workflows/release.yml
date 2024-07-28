@@ -86,7 +86,6 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tauriScript: "pnpm tauri"
-          updaterJsonKeepUniversal: true
           args: ${{ matrix.args }}
 
       - name: Upload build artifacts
@@ -215,46 +214,64 @@ jobs:
           name: Windows
           path: ./build/Windows
 
-      - name: Select artifact
+      - name: Upload macOS updater
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            fs.mkdirSync('./updater_artifact', { recursive: true });
+
+            const installer = './build/macOS/macos/Books.app.tar.gz';
+
+            fs.copyFileSync(installer, `./updater_artifact/${installer.split('/').pop()}`);
+
+      - name: Create json
         uses: actions/github-script@v7
         env:
           APP_VERSION: ${{ needs.build.outputs.appVersion }}
         with:
           script: |
             const fs = require('fs');
-            const out_path = `./updater_artifact/`;
             const version = process.env.APP_VERSION;
-            fs.mkdirSync(out_path, { recursive: true });
 
-            const artifacts = [
-              {
-                artifact: 'Linux',
-                installer: `./build/Linux/Books_${version}_amd64.AppImage`,
-                signature: `./build/Linux/Books_${version}_amd64.AppImage.sig`
-              },
-              {
-                artifact: 'macOS',
-                installer: `./build/macOS/macos/Books.app.tar.gz`,
-                signature: `./build/macOS/macos/Books.app.tar.gz.sig`
-              },
-              {
-                artifact: 'Windows',
-                installer: `./build/Windows/Books_${version}_x64_en-US.msi`,
-                signature: `./build/Windows/Books_${version}_x64_en-US.msi.sig`
+            const signature_linux = fs.readFileSync(`./build/Linux/Books_${version}_x64.AppImage.sig`, 'utf8');
+            const signature_windows = fs.readFileSync(`./build/Windows/Books_${version}_x64_en-US.msi.sig`, 'utf8');
+            const signature_macos = fs.readFileSync(`./build/macOS/macos/Books.app.tar.gz.sig`, 'utf8');
+
+            const json = {
+              version: `v${version}`,
+              pub_date: new Date().toISOString(),
+              notes: "https://github.com/mavgrik/Books/releases/latest",
+              platforms: {
+                  "linux-x86_64": {
+                    "signature": signature_linux,
+                    "url": "https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.AppImage"
+                  },
+                  "windows-x86_64": {
+                    "signature": signature_windows,
+                    "url": "https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.msi"
+                  },
+                  "darwin-x86_64": {
+                    "signature": signature_macos,
+                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
+                  },
+                  "darwin-aarch64": {
+                    "signature": signature_macos,
+                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
+                  },
+                  "darwin-universal": {
+                    "signature": signature_macos,
+                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
+                  }
               }
-            ];
+            };
 
-            for (const artifact of artifacts) {
-              fs.copyFileSync(artifact.installer, `${out_path}/${artifact.installer.split('/').pop()}`);
-              fs.copyFileSync(artifact.signature, `${out_path}/${artifact.signature.split('/').pop()}`);
-            }
+            fs.writeFileSync(`./updater_artifact/latest.json`, JSON.stringify(json, null, 2));
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: updater_artifact
-          overwrite: true
-          path: ./updater_artifact/
+          path: './updater_artifact/'
   
   upload_update:
     name: Upload update
@@ -277,17 +294,6 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: updater_artifact
-          path: ./updater_artifact/
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './updater_artifact/'
 
       - name: Deploy to GitHub Pages
         id: deployment
