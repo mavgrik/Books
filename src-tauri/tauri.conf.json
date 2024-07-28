@@ -84,7 +84,7 @@
   "plugins": {
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZGNEM3MjBCMDAwOUJDRkMKUldUOHZBa0FDM0pNLzVuSFpUZGJob3gzYkhtSml2YjB5cFJ6OEhVWjlxVEdJdjB4cFBHQkNDZWIK",
-      "endpoints": ["https://books.mavgrik.net/latest.json"],
+      "endpoints": ["https://mavgrik.github.io/Books/latest.json"],
       "windows": {
         "installMode": "basicUi"
       }
