@@ -70,24 +70,18 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Set environment variables (unix)
+      - name: Set environment file (unix)
         if: runner.os != 'Windows'
-        run: |
-          echo "SENTRY_DSN=\"${{ secrets.SENTRY_DSN }}\"" >> ./src-tauri/.env
-          export TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
-          export TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
-
-      - name: Set environment variables (windows)
+        run: echo "SENTRY_DSN=\"${{ secrets.SENTRY_DSN }}\"" >> ./src-tauri/.env
+          
+      - name: Set environment file (windows)
         if: runner.os == 'Windows'
-        run: |
-          echo "SENTRY_DSN=`"${{ secrets.SENTRY_DSN }}`"" | Out-File -Append ./src-tauri/.env
-          $env:TAURI_FIPS_COMPLIANT="true"
-          $env:TAURI_SIGNING_PRIVATE_KEY="${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}"
-          $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD="${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}"
+        run: echo "SENTRY_DSN=`"${{ secrets.SENTRY_DSN }}`"" | Out-File -Append ./src-tauri/.env
 
       - uses: tauri-apps/tauri-action@v0
         id: tauri_build
         env:
+          TAURI_FIPS_COMPLIANT: true
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
@@ -144,19 +138,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-            include:
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
-                artifact: "Linux"
-                content_type: "application/x-appimage"
-                path: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-                artifact: "macOS"
-                content_type: "application/x-diskcopy"
-                path: "dmg/Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
-                artifact: "Windows"
-                content_type: "application/x-msdownload"
-                path: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+        include:
+          - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
+            artifact: "Linux"
+            content_type: "application/x-appimage"
+            path: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
+          - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
+            artifact: "macOS"
+            content_type: "application/x-diskcopy"
+            path: "dmg/Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
+          - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
+            artifact: "Windows"
+            content_type: "application/x-msdownload"
+            path: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -208,19 +202,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-            include:
-              - artifact: "Linux"
-                paths: |
-                  "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
-                  "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage.sig"
-              - artifact: "macOS"
-                paths: |
-                  "macos/Books.app.tar.gz"
-                  "macos/Books.app.tar.gz.sig"
-              - artifact: "Windows"
-                paths: |
-                  "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
-                  "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi.sig"
+        include:
+          - artifact: "Linux"
+            paths: |
+              "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
+              "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage.sig"
+          - artifact: "macOS"
+            paths: |
+              "macos/Books.app.tar.gz"
+              "macos/Books.app.tar.gz.sig"
+          - artifact: "Windows"
+            paths: |
+              "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+              "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi.sig"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
