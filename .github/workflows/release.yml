@@ -190,20 +190,6 @@ jobs:
     name: Create update
 
     needs: [build]
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - artifact: "Linux"
-            path_installer: "Books_${{ needs.build.outputs.appVersion }}_amd64.AppImage"
-            path_signature: "Books_${{ needs.build.outputs.appVersion }}_amd64.AppImage.sig"
-          - artifact: "macOS"
-            path_installer: "macos/Books.app.tar.gz"
-            path_signature: "macos/Books.app.tar.gz.sig"
-          - artifact: "Windows"
-            path_installer: "Books_${{ needs.build.outputs.appVersion }}_x64_en-US.msi"
-            path_signature: "Books_${{ needs.build.outputs.appVersion }}_x64_en-US.msi.sig"
     
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -211,24 +197,57 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Download artifacts (Linux)
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ./build/${{ matrix.artifact }}
+          name: Linux
+          path: ./build/Linux
+
+      - name: Download artifacts (macOS)
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS
+          path: ./build/macOS
+
+      - name: Download artifacts (Windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows
+          path: ./build/Windows
 
       - name: Select artifact
         uses: actions/github-script@v7
+        env:
+          APP_VERSION: ${{ needs.build.outputs.appVersion }}
         with:
           script: |
             const fs = require('fs');
-            const installer = `./build/${{ matrix.artifact }}/${{ matrix.path_installer }}`;
-            const signature = `./build/${{ matrix.artifact }}/${{ matrix.path_signature }}`;
             const out_path = `./updater_artifact/`;
-
+            const version = process.env.APP_VERSION;
             fs.mkdirSync(out_path, { recursive: true });
-            fs.copyFileSync(installer, `${out_path}/${installer.split('/').pop()}`);
-            fs.copyFileSync(signature, `${out_path}/${signature.split('/').pop()}`);
+
+            const artifacts = [
+              {
+                artifact: 'Linux',
+                installer: `./build/Linux/Books_${version}_amd64.AppImage`,
+                signature: `./build/Linux/Books_${version}_amd64.AppImage.sig`
+              },
+              {
+                artifact: 'macOS',
+                installer: `./build/macOS/macos/Books.app.tar.gz`,
+                signature: `./build/macOS/macos/Books.app.tar.gz.sig`
+              },
+              {
+                artifact: 'Windows',
+                installer: `./build/Windows/Books_${version}_x64_en-US.msi`,
+                signature: `./build/Windows/Books_${version}_x64_en-US.msi.sig`
+              }
+            ];
+
+            for (const artifact of artifacts) {
+              fs.copyFileSync(artifact.installer, `${out_path}/${artifact.installer.split('/').pop()}`);
+              fs.copyFileSync(artifact.signature, `${out_path}/${artifact.signature.split('/').pop()}`);
+            }
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
