@@ -9,8 +9,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build_release:
-    name: Build release
+  build:
+    name: Build
 
     outputs:
       appVersion: ${{ steps.tauri_build.outputs.appVersion }}
@@ -99,7 +99,7 @@ jobs:
   create_release:
     name: Create release
 
-    needs: [build_release]
+    needs: [build]
 
     permissions:
       contents: write
@@ -121,8 +121,8 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `books-v${{ needs.build_release.outputs.appVersion }}`,
-              name: `Books v${{ needs.build_release.outputs.appVersion }}`,
+              tag_name: `books-v${{ needs.build.outputs.appVersion }}`,
+              name: `Books v${{ needs.build.outputs.appVersion }}`,
               draft: true
             })
             return data.id
@@ -130,7 +130,7 @@ jobs:
   upload_release:
     name: Upload release
 
-    needs: [build_release, create_release]
+    needs: [create_release, build]
 
     permissions:
       contents: write
@@ -139,18 +139,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
+          - name: "Books_${{ needs.build.outputs.appVersion }}_x64.AppImage"
             artifact: "Linux"
             content_type: "application/x-appimage"
-            path: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
-          - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
+            path: "Books_${{ needs.build.outputs.appVersion }}_amd64.AppImage"
+          - name: "Books_${{ needs.build.outputs.appVersion }}_universal.dmg"
             artifact: "macOS"
             content_type: "application/x-diskcopy"
-            path: "dmg/Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-          - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
+            path: "dmg/Books_${{ needs.build.outputs.appVersion }}_universal.dmg"
+          - name: "Books_${{ needs.build.outputs.appVersion }}_x64.msi"
             artifact: "Windows"
             content_type: "application/x-msdownload"
-            path: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+            path: "Books_${{ needs.build.outputs.appVersion }}_x64_en-US.msi"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -188,21 +188,21 @@ jobs:
   create_update:
     name: Create update
 
-    needs: [build_release]
+    needs: [build]
 
     strategy:
       fail-fast: false
       matrix:
         include:
           - artifact: "Linux"
-            path_installer: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
-            path_signature: "Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage.sig"
+            path_installer: "Books_${{ needs.build.outputs.appVersion }}_amd64.AppImage"
+            path_signature: "Books_${{ needs.build.outputs.appVersion }}_amd64.AppImage.sig"
           - artifact: "macOS"
             path_installer: "macos/Books.app.tar.gz"
             path_signature: "macos/Books.app.tar.gz.sig"
           - artifact: "Windows"
-            path_installer: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
-            path_signature: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi.sig"
+            path_installer: "Books_${{ needs.build.outputs.appVersion }}_x64_en-US.msi"
+            path_signature: "Books_${{ needs.build.outputs.appVersion }}_x64_en-US.msi.sig"
     
     runs-on: ubuntu-latest
     timeout-minutes: 30
