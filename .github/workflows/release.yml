@@ -246,11 +246,11 @@ jobs:
               platforms: {
                   "linux-x86_64": {
                     "signature": signature_linux,
-                    "url": "https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.AppImage"
+                    "url": `https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.AppImage`
                   },
                   "windows-x86_64": {
                     "signature": signature_windows,
-                    "url": "https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.msi"
+                    "url": `https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.msi`
                   },
                   "darwin-universal": {
                     "signature": signature_macos,
