@@ -4,6 +4,10 @@ on:
   push:
     branches: [ "dev" ]
 
+concurrency:
+  group: "test"
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build desktop app
