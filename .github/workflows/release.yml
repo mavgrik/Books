@@ -4,9 +4,13 @@ on:
   push:
     branches: [ "main" ]
 
+concurrency:
+  group: "release"
+  cancel-in-progress: false
+
 jobs:
-  build_release:
-    name: Build release
+  build:
+    name: Build
 
     outputs:
       appVersion: ${{ steps.tauri_build.outputs.appVersion }}
@@ -16,23 +20,15 @@ jobs:
       matrix:
         include:
           - platform: "macos-latest"
-            artifact: "macOS-arm"
-            args: "-t aarch64-apple-darwin"
-            path: "/Users/runner/work/Books/Books/src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/"
-          - platform: "macos-latest"
-            artifact: "macOS-x64"
-            args: "-t x86_64-apple-darwin"
-            path: "/Users/runner/work/Books/Books/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/"
-          - platform: "macos-latest"
-            artifact: "macOS-universal"
+            artifact: "macOS"
             args: "-t universal-apple-darwin"
-            path: "/Users/runner/work/Books/Books/src-tauri/target/universal-apple-darwin/release/bundle/dmg/"
+            path: "/Users/runner/work/Books/Books/src-tauri/target/universal-apple-darwin/release/bundle/"
           - platform: "ubuntu-22.04"
-            artifact: "Linux-x64"
+            artifact: "Linux"
             args: ""
-            path: "/home/runner/work/Books/Books/src-tauri/target/release/bundle/"
+            path: "/home/runner/work/Books/Books/src-tauri/target/release/bundle/appimage/"
           - platform: "windows-latest"
-            artifact: "Windows-x64"
+            artifact: "Windows"
             args: ""
             path: "D:\\a\\Books\\Books\\src-tauri\\target\\release\\bundle\\msi\\"
 
@@ -57,7 +53,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          # cache: 'pnpm'
+          cache: 'pnpm'
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -74,18 +70,21 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Set environment variables (unix)
+      - name: Set environment file (unix)
         if: runner.os != 'Windows'
         run: echo "SENTRY_DSN=\"${{ secrets.SENTRY_DSN }}\"" >> ./src-tauri/.env
-
-      - name: Set environment variables (windows)
+          
+      - name: Set environment file (windows)
         if: runner.os == 'Windows'
-        run: |
-          echo "SENTRY_DSN=`"${{ secrets.SENTRY_DSN }}`"" | Out-File -Append ./src-tauri/.env
-          $env:TAURI_FIPS_COMPLIANT="true"
+        run: echo "SENTRY_DSN=`"${{ secrets.SENTRY_DSN }}`"" | Out-File -Append ./src-tauri/.env
 
       - uses: tauri-apps/tauri-action@v0
         id: tauri_build
+        env:
+          CI: false
+          TAURI_FIPS_COMPLIANT: true
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tauriScript: "pnpm tauri"
           args: ${{ matrix.args }}
@@ -100,12 +99,13 @@ jobs:
   create_release:
     name: Create release
 
-    needs: [build_release]
+    needs: [build]
 
     permissions:
       contents: write
 
     outputs:
+      appVersion: ${{ needs.build.outputs.appVersion }}
       release_id: ${{ steps.create_release.outputs.result }}
 
     runs-on: ubuntu-latest
@@ -122,8 +122,8 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `books-v${{ needs.build_release.outputs.appVersion }}`,
-              name: `Books v${{ needs.build_release.outputs.appVersion }}`,
+              tag_name: `books-v${{ needs.build.outputs.appVersion }}`,
+              name: `Books v${{ needs.build.outputs.appVersion }}`,
               draft: true
             })
             return data.id
@@ -131,7 +131,7 @@ jobs:
   upload_release:
     name: Upload release
 
-    needs: [build_release, create_release]
+    needs: [create_release]
 
     permissions:
       contents: write
@@ -139,35 +139,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-            include:
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.deb"
-                artifact: "Linux-x64"
-                content_type: "application/x-deb"
-                path: "deb/Books_${{ needs.build_release.outputs.appVersion }}_amd64.deb"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.rpm"
-                artifact: "Linux-x64"
-                content_type: "application/x-rpm"
-                path: "rpm/Books-${{ needs.build_release.outputs.appVersion }}-${{ needs.build_release.outputs.appVersion }}.x86_64.rpm"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.AppImage"
-                artifact: "Linux-x64"
-                content_type: "application/x-appimage"
-                path: "appimage/Books_${{ needs.build_release.outputs.appVersion }}_amd64.AppImage"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_arm64.dmg"
-                artifact: "macOS-arm"
-                content_type: "application/x-diskcopy"
-                path: "Books_${{ needs.build_release.outputs.appVersion }}_aarch64.dmg"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
-                artifact: "macOS-x64"
-                content_type: "application/x-diskcopy"
-                path: "Books_${{ needs.build_release.outputs.appVersion }}_x64.dmg"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-                artifact: "macOS-universal"
-                content_type: "application/x-diskcopy"
-                path: "Books_${{ needs.build_release.outputs.appVersion }}_universal.dmg"
-              - name: "Books_${{ needs.build_release.outputs.appVersion }}_x64.msi"
-                artifact: "Windows-x64"
-                content_type: "application/x-msdownload"
-                path: "Books_${{ needs.build_release.outputs.appVersion }}_x64_en-US.msi"
+        include:
+          - name: "Books_${{ needs.create_release.outputs.appVersion }}_x64.AppImage"
+            artifact: "Linux"
+            content_type: "application/x-appimage"
+            path: "Books_${{ needs.create_release.outputs.appVersion }}_amd64.AppImage"
+          - name: "Books_${{ needs.create_release.outputs.appVersion }}_universal.dmg"
+            artifact: "macOS"
+            content_type: "application/x-diskcopy"
+            path: "dmg/Books_${{ needs.create_release.outputs.appVersion }}_universal.dmg"
+          - name: "Books_${{ needs.create_release.outputs.appVersion }}_x64.msi"
+            artifact: "Windows"
+            content_type: "application/x-msdownload"
+            path: "Books_${{ needs.create_release.outputs.appVersion }}_x64_en-US.msi"
 
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -201,3 +185,117 @@ jobs:
                 'content-length': stat.size
               }
             })
+
+  create_update:
+    name: Create update
+
+    needs: [build]
+    
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts (Linux)
+        uses: actions/download-artifact@v4
+        with:
+          name: Linux
+          path: ./build/Linux
+
+      - name: Download artifacts (macOS)
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS
+          path: ./build/macOS
+
+      - name: Download artifacts (Windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows
+          path: ./build/Windows
+
+      - name: Upload macOS updater
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            fs.mkdirSync('./updater_artifact', { recursive: true });
+
+            const installer = './build/macOS/macos/Books.app.tar.gz';
+
+            fs.copyFileSync(installer, `./updater_artifact/${installer.split('/').pop()}`);
+
+      - name: Create json
+        uses: actions/github-script@v7
+        env:
+          APP_VERSION: ${{ needs.build.outputs.appVersion }}
+        with:
+          script: |
+            const fs = require('fs');
+            const version = process.env.APP_VERSION;
+
+            const signature_linux = fs.readFileSync(`./build/Linux/Books_${version}_amd64.AppImage.sig`, 'utf8');
+            const signature_windows = fs.readFileSync(`./build/Windows/Books_${version}_x64_en-US.msi.sig`, 'utf8');
+            const signature_macos = fs.readFileSync(`./build/macOS/macos/Books.app.tar.gz.sig`, 'utf8');
+
+            const json = {
+              version: `v${version}`,
+              pub_date: new Date().toISOString(),
+              notes: "https://github.com/mavgrik/Books/releases/latest",
+              platforms: {
+                  "linux-x86_64": {
+                    "signature": signature_linux,
+                    "url": "https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.AppImage"
+                  },
+                  "windows-x86_64": {
+                    "signature": signature_windows,
+                    "url": "https://github.com/mavgrik/Books/releases/latest/download/Books_${version}_x64.msi"
+                  },
+                  "darwin-universal": {
+                    "signature": signature_macos,
+                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
+                  },
+                  "darwin-x86_64": {
+                    "signature": signature_macos,
+                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
+                  },
+                  "darwin-aarch64": {
+                    "signature": signature_macos,
+                    "url": "https://mavgrik.github.io/Books/Books.app.tar.gz"
+                  }
+              }
+            };
+
+            fs.writeFileSync(`./updater_artifact/latest.json`, JSON.stringify(json, null, 2));
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './updater_artifact/'
+  
+  upload_update:
+    name: Upload update
+
+    needs: [create_update]
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      pages: write
+      id-token: write
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
