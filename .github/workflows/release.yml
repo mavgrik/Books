@@ -81,6 +81,7 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         id: tauri_build
         env:
+          CI: false
           TAURI_FIPS_COMPLIANT: true
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
