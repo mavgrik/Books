@@ -16,6 +16,7 @@
     "shell:allow-open",
     "sentry:default",
     "webview:allow-set-webview-zoom",
-    "updater:default"
+    "updater:default",
+    "process:default"
   ]
 }
