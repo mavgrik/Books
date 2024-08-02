@@ -2,6 +2,19 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import Greet from "./components/Greet.vue";
+import { onMounted } from "vue";
+import { check } from "@tauri-apps/plugin-updater";
+import { relaunch } from "@tauri-apps/plugin-process";
+
+onMounted(async () => {
+  const update = await check();
+
+  if (update?.available) {
+    await update.downloadAndInstall();
+    await relaunch();
+  }
+});
+
 </script>
 
 <template>

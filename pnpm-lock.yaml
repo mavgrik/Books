@@ -11,6 +11,9 @@ importers:
       '@tauri-apps/api':
         specifier: ^2.0.0-beta.16
         version: 2.0.0-beta.16
+      '@tauri-apps/plugin-process':
+        specifier: 2.0.0-beta.8
+        version: 2.0.0-beta.8
       '@tauri-apps/plugin-sentry':
         specifier: github:enri90/tauri-plugin-sentry#pr_sentry_plugin
         version: https://codeload.github.com/enri90/tauri-plugin-sentry/tar.gz/8b614e6b7119454ef5e7fe6fe359b9e081e9e9b0
@@ -383,6 +386,9 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
+  '@tauri-apps/plugin-process@2.0.0-beta.8':
+    resolution: {integrity: sha512-+B25JhnBnYp58ydc4HLQJk95+lCDuZlBWzdxAwdgfCr3jq4HtucPly2Ti9yDtdlxoz0JcoX9KNextttArHBKSA==}
+
   '@tauri-apps/plugin-sentry@https://codeload.github.com/enri90/tauri-plugin-sentry/tar.gz/8b614e6b7119454ef5e7fe6fe359b9e081e9e9b0':
     resolution: {tarball: https://codeload.github.com/enri90/tauri-plugin-sentry/tar.gz/8b614e6b7119454ef5e7fe6fe359b9e081e9e9b0}
     version: 2.0.0-beta
@@ -749,6 +755,10 @@ snapshots:
       '@tauri-apps/cli-win32-arm64-msvc': 2.0.0-beta.23
       '@tauri-apps/cli-win32-ia32-msvc': 2.0.0-beta.23
       '@tauri-apps/cli-win32-x64-msvc': 2.0.0-beta.23
+
+  '@tauri-apps/plugin-process@2.0.0-beta.8':
+    dependencies:
+      '@tauri-apps/api': 2.0.0-beta.16
 
   '@tauri-apps/plugin-sentry@https://codeload.github.com/enri90/tauri-plugin-sentry/tar.gz/8b614e6b7119454ef5e7fe6fe359b9e081e9e9b0':
     dependencies:

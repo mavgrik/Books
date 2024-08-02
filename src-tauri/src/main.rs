@@ -18,6 +18,7 @@ fn main() {
     let _guard = tauri_plugin_sentry::minidump::init(&client);
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_sentry::init())
         .plugin(tauri_plugin_shell::init())

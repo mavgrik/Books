@@ -175,6 +175,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tauri-plugin-process",
  "tauri-plugin-sentry",
  "tauri-plugin-shell",
  "tauri-plugin-updater",
@@ -3975,6 +3976,16 @@ dependencies = [
  "tauri-utils",
  "toml 0.8.2",
  "walkdir",
+]
+
+[[package]]
+name = "tauri-plugin-process"
+version = "2.0.0-beta.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df8bf01547046400c3386ac0626c3f48dde14021a3a4d143f7bba62f4bfd661b"
+dependencies = [
+ "tauri",
+ "tauri-plugin",
 ]
 
 [[package]]
