@@ -13,7 +13,7 @@ opt-level = "s" # Optimize for binary size
 strip = true # Remove debug symbols
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-beta", features = [] }
+tauri-build = { version = "2.0.0-rc.0", features = [] }
 
 [dependencies]
 tauri = { version = "2.0.0-beta.25", features = [] }
